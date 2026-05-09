@@ -1,10 +1,13 @@
 # Rendering PNG Math Expressions
 
 ```elixir
-Mix.install([
-  {:kino, "~> 0.19.0"},
-  {:math_jax, "~> 0.2.0"}
-])
+Mix.install(
+  [
+    {:kino, "~> 0.19.0"},
+    {:math_jax, "~> 0.2.0"},
+    {:ratex, "~> 0.1.0"}
+  ]
+)
 ```
 
 ## Rendering Images in a Grid
