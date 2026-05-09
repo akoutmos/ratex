@@ -45,7 +45,7 @@ defmodule Ratex do
   @type svg_opts() :: unquote(NimbleOptions.option_typespec(@svg_opts))
 
   @doc """
-  Generate a PNG binary of a given LaTeX math expression.
+  Generate a PNG binary from a given LaTeX math expression.
 
   ## Options
 
@@ -73,7 +73,7 @@ defmodule Ratex do
   end
 
   @doc """
-  Generate an SVG of a given LaTeX math expression.
+  Generate an SVG from a given LaTeX math expression.
 
   ## Options
 
@@ -87,7 +87,7 @@ defmodule Ratex do
   end
 
   @doc """
-  Same as `render_svg/2` but raises on failure.
+  Same as `render_svg/2` but raises on error.
   """
   @spec render_svg!(expression :: String.t(), opts :: svg_opts()) :: binary()
   def render_svg!(expression, opts \\ []) do
