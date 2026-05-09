@@ -1,0 +1,176 @@
+name: Precompile NIFs
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build_nif_linux:
+    name: NIF ${{ matrix.nif }} - ${{ matrix.job.target }} (${{ matrix.job.os }})
+    runs-on: ${{ matrix.job.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        nif:
+          - { version: "2.15", feature: "2_15" }
+          - { version: "2.16", feature: "2_16" }
+        job:
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Extract project version
+        shell: bash
+        run: |
+          echo "PROJECT_VERSION=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.job.target }}
+
+      - name: Build NIF
+        working-directory: native/ratex_nif
+        run: cargo build --release --target ${{ matrix.job.target }} --features nif_version_${{ matrix.nif.feature }}
+
+      - name: Package artifact
+        run: |
+          TARGET="${{ matrix.job.target }}"
+
+          echo "=== Files matching ratex_nif ==="
+          ls -lh "native/ratex_nif/target/${TARGET}/release/"*ratex_nif* 2>/dev/null || true
+
+          LIB_FILE="native/ratex_nif/target/${TARGET}/release/libratex_nif.so"
+
+          if [ ! -f "$LIB_FILE" ]; then
+            echo "ERROR: NIF not found at $LIB_FILE"
+            find native/ratex_nif/target -name "*ratex*" -type f 2>/dev/null
+            exit 1
+          fi
+
+          echo "Found: $LIB_FILE"
+          echo "Size: $(ls -lh "$LIB_FILE" | awk '{print $5}')"
+          file "$LIB_FILE"
+
+          INNER_NAME="libratex_nif-v${PROJECT_VERSION}-nif-${{ matrix.nif.version }}-${TARGET}.so"
+
+          mkdir -p artifacts
+          cp "$LIB_FILE" "artifacts/${INNER_NAME}"
+          tar -czf "artifacts/${INNER_NAME}.tar.gz" -C artifacts "${INNER_NAME}"
+          rm "artifacts/${INNER_NAME}"
+          ls -lh artifacts/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nif-${{ matrix.job.target }}-nif${{ matrix.nif.version }}
+          path: artifacts/*.tar.gz
+          if-no-files-found: error
+
+  build_nif_other:
+    name: NIF ${{ matrix.nif }} - ${{ matrix.job.target }} (${{ matrix.job.os }})
+    runs-on: ${{ matrix.job.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        nif:
+          - { version: "2.15", feature: "2_15" }
+          - { version: "2.16", feature: "2_16" }
+        job:
+          - os: macos-15
+            target: x86_64-apple-darwin
+          - os: macos-15
+            target: aarch64-apple-darwin
+          - os: windows-2025
+            target: x86_64-pc-windows-msvc
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract project version
+        shell: bash
+        run: |
+          echo "PROJECT_VERSION=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.job.target }}
+
+      - name: Build NIF
+        working-directory: native/ratex_nif
+        run: cargo build --release --target ${{ matrix.job.target }} --features nif_version_${{ matrix.nif.feature }}
+
+      - name: Package artifact
+        shell: bash
+        run: |
+          TARGET="${{ matrix.job.target }}"
+
+          echo "=== Files matching ratex_nif ==="
+          ls -lh "native/ratex_nif/target/${TARGET}/release/"*ratex_nif* 2>/dev/null || true
+
+          if [[ "$TARGET" == *"windows"* ]]; then
+            LIB_FILE="native/ratex_nif/target/${TARGET}/release/ratex_nif.dll"
+            EXT="dll"
+            PREFIX=""
+          elif [[ "$TARGET" == *"apple"* ]]; then
+            LIB_FILE="native/ratex_nif/target/${TARGET}/release/libratex_nif.dylib"
+            EXT="so"
+            PREFIX="lib"
+          else
+            LIB_FILE="native/ratex_nif/target/${TARGET}/release/libratex_nif.so"
+            EXT="so"
+            PREFIX="lib"
+          fi
+
+          if [ ! -f "$LIB_FILE" ]; then
+            echo "ERROR: NIF not found at $LIB_FILE"
+            find native/ratex_nif/target -name "*ratex*" -type f 2>/dev/null
+            exit 1
+          fi
+
+          echo "Found: $LIB_FILE"
+          echo "Size: $(ls -lh "$LIB_FILE" | awk '{print $5}')"
+          file "$LIB_FILE"
+
+          INNER_NAME="${PREFIX}ratex_nif-v${PROJECT_VERSION}-nif-${{ matrix.nif.version }}-${TARGET}.${EXT}"
+
+          mkdir -p artifacts
+          cp "$LIB_FILE" "artifacts/${INNER_NAME}"
+          tar -czf "artifacts/${INNER_NAME}.tar.gz" -C artifacts "${INNER_NAME}"
+          rm "artifacts/${INNER_NAME}"
+          ls -lh artifacts/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nif-${{ matrix.job.target }}-nif${{ matrix.nif.version }}
+          path: artifacts/*.tar.gz
+          if-no-files-found: error
+
+  publish_release:
+    name: Publish Release
+    needs: [build_nif_linux, build_nif_other]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: nif-*
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find artifacts -type f | sort
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

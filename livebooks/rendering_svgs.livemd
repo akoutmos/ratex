@@ -1,0 +1,26 @@
+# Rendering SVG Math Expressions
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.19.0"},
+  {:math_jax, "~> 0.2.0"}
+])
+```
+
+## Rendering Images in a Grid
+
+```elixir
+[
+  ~S"y = mx + b",
+  ~S"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}",
+  ~S"\frac{d}{dx}\left[\frac{x^2 \sin(x)}{e^x}\right] = \frac{e^x(2x\sin(x) + x^2\cos(x)) - x^2\sin(x)\,e^x}{e^{2x}}",
+  ~S"\int_{0}^{\infty} \frac{\sqrt[3]{x}}{(1+x)^2} \, dx = \frac{2\pi}{3\sqrt{3}}",
+  ~S"\nabla f(\mathbf{x}) = \sum_{k=1}^{n} \frac{\partial}{\partial x_k} \left[ \int_{0}^{x_k} e^{-t^2} \, dt \right] \hat{e}_k = \begin{pmatrix} e^{-x_1^2} \\ e^{-x_2^2} \\ \vdots \\ e^{-x_n^2} \end{pmatrix}"
+]
+|> Enum.map(fn expression ->
+  expression
+  |> MathJax.render!(:svg)
+  |> Kino.Image.new(:svg)
+end)
+|> Kino.Layout.grid(columns: 2)
+```
