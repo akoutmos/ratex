@@ -48,10 +48,6 @@ fn render_svg<'a>(env: Env<'a>, latex: String, opts: Options) -> Result<Term<'a>
     }
 }
 
-// =============================================================================
-// Pipeline implementation
-// =============================================================================
-
 fn build_display_list(latex: &str, inline: bool, color_hex: &str) -> Result<DisplayList, String> {
     let nodes = ratex_parser::parse(latex).map_err(|e| format!("parse error: {e:?}"))?;
     let mut layout_opts = ratex_layout::LayoutOptions::default();
