@@ -8,6 +8,8 @@ use ratex_types::{Color, MathStyle};
 pub struct Options {
     pub font_size: f64,
     pub pixel_ratio: Option<f64>,
+    pub padding: Option<f64>,
+    // pub background_color: Option<String>,
     pub color: String,
     pub inline: bool,
     pub unicode_font_path: Option<String>,
@@ -77,6 +79,17 @@ fn do_render_png(latex: &str, opts: &Options) -> Result<Vec<u8>, String> {
         render_opts.device_pixel_ratio = pixel_ratio as f32;
     }
 
+    if let Some(padding) = opts.padding {
+        render_opts.padding = padding as f32;
+    }
+
+    // TODO: Uncomment this once a release is cut with this feature
+    // if let Some(bg_hex) = &opts.background_color {
+    //     if let Some(bg) = Color::parse(bg_hex) {
+    //         render_opts.background_color = bg;
+    //     }
+    // }
+
     ratex_render::render_to_png(&dl, &render_opts).map_err(|e| format!("render error: {e:?}"))
 }
 
@@ -86,6 +99,10 @@ fn do_render_svg(latex: &str, opts: &Options) -> Result<String, String> {
 
     svg_opts.font_size = opts.font_size;
     svg_opts.embed_glyphs = true;
+
+    if let Some(padding) = opts.padding {
+        svg_opts.padding = padding;
+    }
 
     Ok(ratex_svg::render_to_svg(&dl, &svg_opts))
 }

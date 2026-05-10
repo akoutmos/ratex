@@ -42,7 +42,7 @@ dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ratex, "~> 0.1.0"}
+    {:ratex, "~> 0.2.0"}
   ]
 end
 ```
@@ -57,7 +57,7 @@ mathematical expressions:
 ### Example 1
 
 ```elixir
-Ratex.render_svg!(~S"y = mx + b", :png)
+Ratex.render_png!(~S"y = mx + b")
 ```
 
 <p align="center">
@@ -67,7 +67,7 @@ Ratex.render_svg!(~S"y = mx + b", :png)
 ### Example 2
 
 ```elixir
-Ratex.render_svg!(~S"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}", :png)
+Ratex.render_png!(~S"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}")
 ```
 
 <p align="center">
@@ -77,7 +77,7 @@ Ratex.render_svg!(~S"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}", :png)
 ### Example 3
 
 ```elixir
-Ratex.render_svg!(~S"\frac{d}{dx}\left[\frac{x^2 \sin(x)}{e^x}\right] = \frac{e^x(2x\sin(x) + x^2\cos(x)) - x^2\sin(x)\,e^x}{e^{2x}}", :png)
+Ratex.render_png!(~S"\frac{d}{dx}\left[\frac{x^2 \sin(x)}{e^x}\right] = \frac{e^x(2x\sin(x) + x^2\cos(x)) - x^2\sin(x)\,e^x}{e^{2x}}")
 ```
 
 <p align="center">
@@ -87,7 +87,7 @@ Ratex.render_svg!(~S"\frac{d}{dx}\left[\frac{x^2 \sin(x)}{e^x}\right] = \frac{e^
 ### Example 4
 
 ```elixir
-Ratex.render_svg!(~S"\int_{0}^{\infty} \frac{\sqrt[3]{x}}{(1+x)^2} \, dx = \frac{2\pi}{3\sqrt{3}}", :png)
+Ratex.render_png!(~S"\int_{0}^{\infty} \frac{\sqrt[3]{x}}{(1+x)^2} \, dx = \frac{2\pi}{3\sqrt{3}}")
 ```
 
 <p align="center">
@@ -97,7 +97,7 @@ Ratex.render_svg!(~S"\int_{0}^{\infty} \frac{\sqrt[3]{x}}{(1+x)^2} \, dx = \frac
 ### Example 5
 
 ```elixir
-Ratex.render_svg!(~S"\nabla f(\mathbf{x}) = \sum_{k=1}^{n} \frac{\partial}{\partial x_k} \left[ \int_{0}^{x_k} e^{-t^2} \, dt \right] \hat{e}_k = \begin{pmatrix} e^{-x_1^2} \\ e^{-x_2^2} \\ \vdots \\ e^{-x_n^2} \end{pmatrix}", :png)
+Ratex.render_png!(~S"\nabla f(\mathbf{x}) = \sum_{k=1}^{n} \frac{\partial}{\partial x_k} \left[ \int_{0}^{x_k} e^{-t^2} \, dt \right] \hat{e}_k = \begin{pmatrix} e^{-x_1^2} \\ e^{-x_2^2} \\ \vdots \\ e^{-x_n^2} \end{pmatrix}")
 ```
 
 <p align="center">

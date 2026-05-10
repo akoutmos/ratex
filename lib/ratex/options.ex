@@ -8,6 +8,8 @@ defmodule Ratex.Options do
   @type t :: %__MODULE__{
           font_size: float(),
           pixel_ratio: float() | nil,
+          padding: float() | nil,
+          # background_color: String.t() | nil,
           color: String.t(),
           inline: boolean(),
           unicode_font_path: String.t() | nil
@@ -16,6 +18,8 @@ defmodule Ratex.Options do
   @keys [
     :font_size,
     :pixel_ratio,
+    :padding,
+    # :background_color,
     :color,
     :inline,
     :unicode_font_path

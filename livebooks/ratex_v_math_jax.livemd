@@ -1,0 +1,45 @@
+# Ratex Versus MathJax Benchmark
+
+```elixir
+Mix.install([
+  {:math_jax, "~> 0.2.0"},
+  {:ratex, "~> 0.1.0"},
+  {:kino_benchee, "~> 0.1.0"}
+])
+```
+
+## Using Benchee to Measure Both Libraries
+
+```elixir
+defmodule BenchmarkTests do
+  @expression ~S"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}"
+
+  def math_jax_svg do
+    MathJax.render!(@expression, :svg)
+  end
+
+  def ratex_svg do
+    Ratex.render_svg!(@expression)
+  end
+
+  def math_jax_png do
+    MathJax.render!(@expression, :png)
+  end
+
+  def ratex_png do
+    Ratex.render_png!(@expression)
+  end
+end
+
+Benchee.run(
+  %{
+    "MathJax SVG" => &BenchmarkTests.math_jax_svg/0,
+    "Ratex SVG" => &BenchmarkTests.ratex_svg/0,
+    "MathJax PNG" => &BenchmarkTests.math_jax_png/0,
+    "Ratex PNG" => &BenchmarkTests.ratex_png/0,
+  },
+  time: 1,
+  memory_time: 1,
+  reduction_time: 1
+)
+```

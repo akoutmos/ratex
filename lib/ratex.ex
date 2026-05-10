@@ -20,6 +20,16 @@ defmodule Ratex do
       type: :float,
       default: 2.0
     ],
+    padding: [
+      doc: "The x/y axis padding for the image.",
+      type: :float,
+      default: 5.0
+    ],
+    # background_color: [
+    #   doc: "The background color of the image (e.g. `#112233`).",
+    #   type: :string,
+    #   default: "#FFFFFF00"
+    # ],
     color: [
       doc: "The color of the glpyhs as hexadecimal (e.g. `#112233`).",
       type: :string,
@@ -38,7 +48,7 @@ defmodule Ratex do
   ]
 
   @png_opts @all_opts
-  @svg_opts Keyword.delete(@all_opts, :pixel_ratio)
+  @svg_opts Keyword.drop(@all_opts, [:pixel_ratio])
 
   @type png_opts() :: unquote(NimbleOptions.option_typespec(@png_opts))
 
